@@ -40,10 +40,10 @@ lvim.lsp.buffer_mappings.normal_mode["gd"] = {
 }
 
 -- Go to recently used files list using telescope
-lvim.lsp.buffer_mappings.normal_mode["gf"] = {
-  ":Telescope frecency workspace=CWD<CR>",
-  kind.cmp_kind.Reference .. " Telescope Frecency"
-}
+-- lvim.lsp.buffer_mappings.normal_mode["gf"] = {
+--   ":Telescope frecency workspace=CWD<CR>",
+--   kind.cmp_kind.Reference .. " Telescope Frecency"
+-- }
 
 -- Keymaps for hop.nvim
 local hop = require('hop')
@@ -64,3 +64,7 @@ end, { remap = true })
 
 -- Enter normal mode while inside builtin terminal
 vim.api.nvim_set_keymap("t", "<C-Space>", "<C-\\><C-n>", { noremap = true, silent = true })
+
+-- Use <tab> key to select the suggestion from autocomplete list
+local cmp = require "cmp"
+lvim.builtin.cmp.mapping["<Tab>"] = cmp.mapping.confirm({ select = true }) -- Use Tab to confirm

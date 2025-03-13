@@ -1,7 +1,7 @@
 local formatters = require "lvim.lsp.null-ls.formatters"
 formatters.setup({
   {
-    command = "prettier",
+    command = "prettierd",
     filetypes = {
       "javascript",
       "javascriptreact",
@@ -18,21 +18,21 @@ formatters.setup({
       "graphql",
       "handlebars",
       "json",
-    }
+    },
   },
 })
 
 local linters = require "lvim.lsp.null-ls.linters"
 linters.setup({
   {
-    command = "eslint",
-    filetypes = { "javascript", "typescript", "typescriptreact", "json" }
+    command = "eslint_d",
+    filetypes = { "javascript", "typescript", "typescriptreact", "json" },
   },
 })
 
 vim.diagnostic.config({
   float = {
-    max_width = 120,     -- Set the maximum width of the diagnostic float window
+    max_width = 120, -- Set the maximum width of the diagnostic float window
     focusable = true,
   },
 })

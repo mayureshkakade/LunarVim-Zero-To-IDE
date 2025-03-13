@@ -13,13 +13,8 @@ lvim.plugins = {
   },
 
   -- Colorschemes examples
-  -- { "morhetz/gruvbox" },
-  -- { "sainnhe/gruvbox-material" },
-  -- { "sainnhe/sonokai" },
-  -- { "sainnhe/edge" },
-  -- { "lunarvim/hlvim.format_on_save = trueorizon.nvim" },
-  -- { "tomasr/molokai" },
-  -- { "ayu-theme/ayu-vim" },
+  { "tomasr/molokai" },
+  { "ayu-theme/ayu-vim" },
 
   -- Show a pretty list of diagnostics in quick fix
   -- {
@@ -75,10 +70,10 @@ lvim.plugins = {
   },
 
   -- Another telescope extension to find/navigate recently used files
-  {
-    'nvim-telescope/telescope-frecency.nvim',
-    dependencies = { 'nvim-telescope/telescope.nvim', 'kkharji/sqlite.lua' },
-  },
+  -- {
+  --   'nvim-telescope/telescope-frecency.nvim',
+  --   dependencies = { 'nvim-telescope/telescope.nvim', 'kkharji/sqlite.lua' },
+  -- },
 
   -- Gitlinker plugin to open links to files in the browser
   -- <leader>gy : To copy the current line github url
@@ -89,6 +84,7 @@ lvim.plugins = {
       require("gitlinker").setup()
     end,
   },
+
   -- Converts vertically comma separated values to horizontal format
   -- {
   --   'AckslD/nvim-trevJ.lua',
@@ -137,39 +133,57 @@ table.insert(lvim.plugins,
       { "zbirenbaum/copilot.lua" },
       { "nvim-lua/plenary.nvim", branch = "master" }
     },
-    opts = {},
+    opts = {
+      window = {
+        width = 80,
+      },
+    },
     keys = {
       { "<leader><leader>cc", "<cmd>CopilotChat<cr>",        desc = "Open Copilot Chat" },
       { "<leader><leader>ce", "<cmd>CopilotChatExplain<cr>", desc = "Explain Code" },
       { "<leader><leader>ct", "<cmd>CopilotChatTests<cr>",   desc = "Generate Tests" },
       { "<leader><leader>cf", "<cmd>CopilotChatFix<cr>",     desc = "Fix Code" },
     },
+    event = "InsertEnter",
   }
 )
 
 -- Display telescope panel using default theme (center)
 lvim.builtin.telescope.theme = "center"
 
+local action_state = require("telescope.actions.state")
+
 -- use ctrl+j/k to navigate the telescope file search results
-lvim.builtin.telescope.defaults.mappings = {
-  i = {
-    ["<C-j>"] = require("telescope.actions").move_selection_next,
-    ["<C-k>"] = require("telescope.actions").move_selection_previous,
+lvim.builtin.telescope = {
+  defaults = {
+    layout_strategy = "horizontal",
+    layout_config = {
+      width = 0.9,
+      preview_width = 0.6,
+      prompt_position = "bottom",
+      horizontal = {
+        preview_cutoff = 0,
+        preview_width = 0.6,
+      },
+    },
+    path_display = { "truncate" },
+    mappings = {
+      i = {
+        ["<C-j>"] = require("telescope.actions").move_selection_next,
+        ["<C-k>"] = require("telescope.actions").move_selection_previous,
+        ["<C-y>"] = function(prompt_bufnr)
+          local entry = action_state.get_selected_entry()
+          if entry then
+            vim.fn.setreg("+", entry.path) -- Copy full path
+            print("Copied: " .. entry.path)
+          end
+        end
+      },
+    },
   },
 }
 
--- allow git-ignored files to appear in search
-lvim.builtin.telescope.defaults.file_ignore_patterns = {
-  "node_modules"
-}
-
--- allow git-ignored files to appear in search
-lvim.builtin.telescope.pickers.find_files = {
-  hidden = true,
-  no_ignore = true,
-  no_ignore_parent = true,
-}
-
-lvim.builtin.telescope.on_config_done = function(telescope)
-  pcall(telescope.load_extension, "frecency")
-end
+-- Uncomment this to use the frecency plugin
+-- lvim.builtin.telescope.on_config_done = function(telescope)
+--   pcall(telescope.load_extension, "frecency")
+-- end
