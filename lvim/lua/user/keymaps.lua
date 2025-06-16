@@ -26,6 +26,23 @@ keymap("n", "gn", ":tabe %<CR>", opts)
 -- Save file with ctrl+s
 lvim.keys.normal_mode["<C-s>"] = ":w<cr>"
 
+-- Use <leader> + <tab> to toggle between recent used buffers
+lvim.keys.normal_mode["<leader><Tab>"] = ":b#<CR>"
+
+-- Use <leader> + Shift + F to search text within a directory specified in input
+lvim.keys.normal_mode["<leader>F"] = function()
+  local pattern = vim.fn.input("Search in directory: ") -- User enters only the directory name
+  if pattern == "" then
+    print("No directory provided!")
+    return
+  end
+  local formatted_pattern = "**/" .. pattern .. "/**" -- Automatically format for --glob
+  require('telescope.builtin').live_grep({
+    additional_args = function() return { "--glob", formatted_pattern } end
+  })
+end
+
+
 -- Go to references list using telescope
 lvim.lsp.buffer_mappings.normal_mode["gr"] = {
   ":lua require'telescope.builtin'.lsp_references()<cr>",

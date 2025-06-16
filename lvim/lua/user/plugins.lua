@@ -148,8 +148,9 @@ table.insert(lvim.plugins,
   }
 )
 
--- Display telescope panel using default theme (center)
-lvim.builtin.telescope.theme = "center"
+-- Display builtin terminal as vertical split
+lvim.builtin.terminal.direction = "vertical" -- or "horizontal"
+lvim.builtin.terminal.size = 60
 
 local action_state = require("telescope.actions.state")
 
@@ -167,6 +168,16 @@ lvim.builtin.telescope = {
       },
     },
     path_display = { "truncate" },
+    vimgrep_arguments = {
+      "rg",
+      "--color=never",
+      "--no-heading",
+      "--with-filename",
+      "--line-number",
+      "--column",
+      "--smart-case",
+      "--hidden", -- include hidden files like `.github`
+    },
     mappings = {
       i = {
         ["<C-j>"] = require("telescope.actions").move_selection_next,

@@ -26,8 +26,12 @@ local linters = require "lvim.lsp.null-ls.linters"
 linters.setup({
   {
     command = "eslint_d",
-    filetypes = { "javascript", "typescript", "typescriptreact", "json" },
+    filetypes = { "javascript", "typescript", "typescriptreact" },
   },
+  {
+    command = "jsonlint",
+    filetypes = { "json" },
+  }
 })
 
 vim.diagnostic.config({
