@@ -152,8 +152,6 @@ table.insert(lvim.plugins,
 lvim.builtin.terminal.direction = "vertical" -- or "horizontal"
 lvim.builtin.terminal.size = 60
 
-local action_state = require("telescope.actions.state")
-
 -- use ctrl+j/k to navigate the telescope file search results
 lvim.builtin.telescope = {
   defaults = {
@@ -183,13 +181,30 @@ lvim.builtin.telescope = {
         ["<C-j>"] = require("telescope.actions").move_selection_next,
         ["<C-k>"] = require("telescope.actions").move_selection_previous,
         ["<C-y>"] = function(prompt_bufnr)
-          local entry = action_state.get_selected_entry()
-          if entry then
-            vim.fn.setreg("+", entry.path) -- Copy full path
-            print("Copied: " .. entry.path)
+          local entry = require("telescope.actions.state").get_selected_entry()
+          local path = entry.path or entry.filename
+          if path then
+            vim.fn.setreg("+", path)
+            print("Copied: " .. path)
+          else
+            print("No path to copy")
           end
         end
       },
+    },
+  },
+  -- sort the results in the buffer finder by most recently used at the bottom
+  pickers = {
+    buffers = {
+      sort_lastused = true,
+      sort_mru = true,
+      mappings = {
+        i = {
+          ["<C-d>"] = "delete_buffer",
+        },
+      },
+      -- Custom sorter to reverse order (most recent at bottom)
+      sorter = require("telescope.sorters").get_generic_fuzzy_sorter({}),
     },
   },
 }
