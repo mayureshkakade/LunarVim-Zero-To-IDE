@@ -40,9 +40,3 @@ vim.diagnostic.config({
     focusable = true,
   },
 })
-
--- Customize the display name for Copilot in the autocompletion menu
-lvim.builtin.cmp.formatting.source_names["copilot"] = "(Copilot)"
-
--- Add Copilot as the first autocompletion source
-table.insert(lvim.builtin.cmp.sources, 1, { name = "copilot" })

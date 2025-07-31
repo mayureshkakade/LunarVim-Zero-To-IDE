@@ -6,23 +6,99 @@ lvim.plugins = {
     event = "InsertEnter",
     config = function()
       require("copilot").setup({
-        suggestions = { enabled = false },
+        -- This is correct: disable copilot's UI
+        suggestion = { enabled = false },
         panel = { enabled = false },
+        filetypes = {
+          ['*'] = true
+        },
       })
     end,
   },
 
-  -- Colorschemes examples
+  -- Blink CMP plugin for better autocompletion experience with Copilot
+  {
+    "saghen/blink.cmp",
+    version = "1.*",
+    dependencies = {
+      "rafamadriz/friendly-snippets",
+      "giuxtaposition/blink-cmp-copilot", -- The adapter plugin
+    },
+    opts = {
+      keymap = {
+        preset = 'default',
+        ["<C-j>"] = { 'select_next', 'fallback' },
+        ["<C-k>"] = { 'select_prev', 'fallback' },
+        ["<Tab>"] = { 'accept', 'fallback' }
+      },
+      completion = { documentation = { auto_show = true } },
+      fuzzy = { implementation = "prefer_rust_with_warning" },
+      sources = {
+        providers = {
+          copilot = {
+            module = "blink-cmp-copilot",
+            score_offset = 100,
+          },
+        },
+        default = { 'copilot', 'lsp', 'snippets', 'buffer', 'path' },
+      },
+    },
+  },
+  -- {
+  --   "zbirenbaum/copilot-cmp",
+  --   event = "InsertEnter",
+  --   dependencies = { "zbirenbaum/copilot.lua" },
+  --   config = function()
+  --     require("copilot_cmp").setup()
+  --   end
+  -- },
+
+  -- Official GitHub Copilot plugin for AI code suggestions in real-time.
+  {
+    "github/copilot.vim",
+    -- event = "InsertEnter",
+    config = function()
+      -- vim.g.copilot_no_tab_map = true
+      vim.g.copilot_filetypes = { ["*"] = false } -- Disable Copilot for all file types by default so that inline suggestions don't interfere with Blink CMP
+      -- vim.api.nvim_set_keymap("i", "<C-j>", 'copilot#Accept("<CR>")', { silent = true, expr = true, script = true })
+      -- vim.api.nvim_set_keymap("i", "<C-k>", 'copilot#Dismiss()', { silent = true, expr = true, script = true })
+    end,
+  },
+
+  -- AI-powered code assistant that provides intelligent code completions and explanations.
+  {
+    "yetone/avante.nvim",
+    build = "make",
+    event = "VeryLazy",
+    version = false,
+    opts = {
+      provider = "copilot",
+      providers = {
+        copilot = {
+          model = 'claude-sonnet-4'
+        },
+      },
+    },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "MunifTanjim/nui.nvim",
+      "nvim-tree/nvim-web-devicons",
+      "github/copilot.vim",
+      {
+        'MeanderingProgrammer/render-markdown.nvim',
+        opts = {
+          file_types = { "markdown", "Avante" },
+        },
+        ft = { "markdown", "Avante" },
+      },
+    },
+  },
+
+  -- Colorschemes: Examples of themes to customize the appearance of your editor.
   { "tomasr/molokai" },
   { "ayu-theme/ayu-vim" },
 
-  -- Show a pretty list of diagnostics in quick fix
-  -- {
-  --   "folke/trouble.nvim",
-  --   cmd = "TroubleToggle",
-  -- },
-
-  -- Better TODO comments
+  -- Plugin to highlight and manage TODO comments in your code, improving task management.
   {
     "folke/todo-comments.nvim",
     event = "BufRead",
@@ -31,7 +107,7 @@ lvim.plugins = {
     end
   },
 
-  -- For restoring last session
+  -- Persistence plugin to restore the last editing session, improving workflow continuity.
   {
     "folke/persistence.nvim",
     event = "BufReadPre",
@@ -43,10 +119,7 @@ lvim.plugins = {
     end
   },
 
-  -- { "tpope/vim-surround" },
-  -- { "felipec/vim-sanegx", event = "BufRead" },
-
-  -- Auto close tags
+  -- Automatically closes HTML/XML tags while coding.
   {
     "windwp/nvim-ts-autotag",
     config = function()
@@ -58,7 +131,7 @@ lvim.plugins = {
   -- Place a marker on files for later reference
   -- { "ThePrimeagen/harpoon" },
 
-  -- Easily navigate similar to leap or easymotion
+  -- Hop plugin for fast navigation between words or characters in a document.
   {
     'phaazon/hop.nvim',
     branch = 'v2',
@@ -69,13 +142,7 @@ lvim.plugins = {
     end
   },
 
-  -- Another telescope extension to find/navigate recently used files
-  -- {
-  --   'nvim-telescope/telescope-frecency.nvim',
-  --   dependencies = { 'nvim-telescope/telescope.nvim', 'kkharji/sqlite.lua' },
-  -- },
-
-  -- Gitlinker plugin to open links to files in the browser
+  -- Gitlinker plugin for creating sharable URLs to specific lines in code hosted on GitHub.
   -- <leader>gy : To copy the current line github url
   -- <leader>go : To open the github url in browser for current line
   {
@@ -85,68 +152,34 @@ lvim.plugins = {
     end,
   },
 
-  -- Converts vertically comma separated values to horizontal format
-  -- {
-  --   'AckslD/nvim-trevJ.lua',
-  --   config = 'require("trevj").setup()',
-  --   init = function()
-  --     vim.keymap.set('n', '<leader>j', function()
-  --       require('trevj').format_at_cursor()
-  --     end)
-  --   end,
-  -- }
-
   -- Octo plugin for github issues
   -- commands
   -- Octo pr list
   -- Octo pr search
   -- Octo review start
-  {
-    "pwntester/octo.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-telescope/telescope.nvim",
-      "nvim-tree/nvim-web-devicons",
-    },
-    config = function()
-      require("octo").setup()
-    end,
-  },
+  -- {
+  --   "pwntester/octo.nvim",
+  --   dependencies = {
+  --     "nvim-lua/plenary.nvim",
+  --     "nvim-telescope/telescope.nvim",
+  --     "nvim-tree/nvim-web-devicons",
+  --   },
+  --   config = function()
+  --     require("octo").setup()
+  --   end,
+  -- },
 }
 
 -- Copilot completion plugin
-table.insert(lvim.plugins, {
-  "zbirenbaum/copilot-cmp",
-  event = "InsertEnter",
-  dependencies = { "zbirenbaum/copilot.lua" },
-  config = function()
-    local ok, cmp = pcall(require, "copilot_cmp")
-    if ok then cmp.setup({}) end
-  end,
-})
-
--- CopilotChat plugin
-table.insert(lvim.plugins,
-  {
-    "CopilotC-Nvim/CopilotChat.nvim",
-    dependencies = {
-      { "zbirenbaum/copilot.lua" },
-      { "nvim-lua/plenary.nvim", branch = "master" }
-    },
-    opts = {
-      window = {
-        width = 80,
-      },
-    },
-    keys = {
-      { "<leader><leader>cc", "<cmd>CopilotChat<cr>",        desc = "Open Copilot Chat" },
-      { "<leader><leader>ce", "<cmd>CopilotChatExplain<cr>", desc = "Explain Code" },
-      { "<leader><leader>ct", "<cmd>CopilotChatTests<cr>",   desc = "Generate Tests" },
-      { "<leader><leader>cf", "<cmd>CopilotChatFix<cr>",     desc = "Fix Code" },
-    },
-    event = "InsertEnter",
-  }
-)
+-- table.insert(lvim.plugins, {
+--   "zbirenbaum/copilot-cmp",
+--   event = "InsertEnter",
+--   dependencies = { "zbirenbaum/copilot.lua" },
+--   config = function()
+--     local ok, cmp = pcall(require, "copilot_cmp")
+--     if ok then cmp.setup({}) end
+--   end,
+-- })
 
 -- Display builtin terminal as vertical split
 lvim.builtin.terminal.direction = "vertical" -- or "horizontal"
@@ -208,8 +241,3 @@ lvim.builtin.telescope = {
     },
   },
 }
-
--- Uncomment this to use the frecency plugin
--- lvim.builtin.telescope.on_config_done = function(telescope)
---   pcall(telescope.load_extension, "frecency")
--- end
