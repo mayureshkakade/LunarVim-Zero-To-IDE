@@ -168,6 +168,37 @@ lvim.plugins = {
   --     require("octo").setup()
   --   end,
   -- },
+
+  -- Noice.nvim plugin for enhanced command line and message handling in Neovim.
+  {
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    opts = {
+      cmdline = {
+        enabled = true,
+        view = "cmdline_popup",
+      },
+      messages = {
+        enabled = true,
+        view = "notify",
+        view_error = "notify",
+        view_warn = "notify",
+        view_history = "messages",
+        view_search = "virtualtext",
+      },
+    },
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "rcarriga/nvim-notify",
+    },
+    config = function()
+      require("notify").setup({
+        background_colour = "#1E1E1E",
+      })
+      require("noice").setup({
+      })
+    end,
+  },
 }
 
 -- Copilot completion plugin
