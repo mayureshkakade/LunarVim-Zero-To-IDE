@@ -1,7 +1,7 @@
 local options = {
   backup = false,                          -- creates a backup file
   clipboard = "unnamedplus",               -- allows neovim to access the system clipboard
-  cmdheight = 1,                           -- more space in the neovim command line for displaying messages
+  cmdheight = 0,                           -- more space in the neovim command line for displaying messages
   completeopt = { "menuone", "noselect" }, -- mostly just for cmp
   conceallevel = 0,                        -- so that `` is visible in markdown files
   fileencoding = "utf-8",                  -- the encoding written to a file
@@ -52,6 +52,15 @@ lvim.builtin.project.detection_methods = { "pattern" }
 lvim.builtin.project.patterns = { ".git" }
 lvim.colorscheme = "ayu"
 lvim.transparent_window = true
--- lvim.colorscheme = nil
+
+-- Disable the nvim.cmp since we are using Blink.cmp
 lvim.builtin.cmp.active = false
+
+-- Display builtin terminal as vertical split. Comment below code to use toggle terminal.
+lvim.builtin.terminal.direction = "float"
+-- lvim.builtin.terminal.size = 20
+lvim.builtin.terminal.float_opts = {
+  width = 85,
+  height = 35,
+}
 -- lvim.builtin.project.patterns = { ".git", "package-lock.json", "yarn.lock", "package.json" }

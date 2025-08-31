@@ -75,10 +75,54 @@ lvim.plugins = {
       provider = "copilot",
       providers = {
         copilot = {
-          model = 'claude-sonnet-4'
+          -- model = 'claude-sonnet-4'
+          model = 'gpt-4.1',
+          -- max_context_tokens = 8000
+        },
+      },
+      windows = {
+        sidebar = {
+          width = 50,
+          position = "right",
+          winblend = 80, -- Make sidebar transparent (0-100, higher = more transparent)
+        },
+        input = {
+          prefix = "> ",
+          winblend = 20, -- Make input window transparent
+        },
+        edit = {
+          border = "rounded",
+          winblend = 20, -- Make edit window transparent
+        },
+        ask = {
+          floating = true,
+          border = "rounded",
+          winblend = 70, -- Make ask window transparent
+        },
+      },
+      behaviour = {
+        auto_suggestions = false,
+        auto_set_highlight_group = true,
+        auto_set_keymaps = true,
+        auto_apply_diff_after_generation = false,
+        support_paste_from_clipboard = false,
+      },
+      mappings = {
+        ask = "<leader>aa",
+        edit = "<leader>ae",
+        refresh = "<leader>ar",
+        diff = {
+          ours = "co",
+          theirs = "ct",
+          both = "cb",
+          next = "]x",
+          prev = "[x",
         },
       },
     },
+    config = function(_, opts)
+      require("avante").setup(opts)
+    end,
     dependencies = {
       "nvim-lua/plenary.nvim",
       "MunifTanjim/nui.nvim",
@@ -193,36 +237,94 @@ lvim.plugins = {
     },
     config = function()
       require("notify").setup({
-        background_colour = "#1E1E1E",
+        background_colour = "#000000",
+        timeout = 2000,              -- Auto-dismiss after 2 seconds
+        max_width = 60,              -- Limit notification width
+        max_height = 15,             -- Limit notification height
+        minimum_width = 40,          -- Minimum width for consistency
+        level = vim.log.levels.INFO, -- Show info level and above for better visibility
+        render = "compact",
+        stages = "static",           -- Use static stage for immediate timeout respect
+        top_down = false,            -- Show notifications from bottom up
+        fps = 60,                    -- Smooth animation
+        animation = "fade",          -- Use fade animation instead of stages
+        hide_from_history = false,   -- Keep in history but respect timeout
+        icons = {
+          ERROR = "",
+          WARN = "",
+          INFO = "",
+          DEBUG = "",
+          TRACE = "✎",
+        },
+        on_open = function(win)
+          -- Make notifications non-focusable but ensure they're visible
+          vim.api.nvim_win_set_config(win, {
+            focusable = false,
+            zindex = 100 -- Ensure notifications appear on top
+          })
+        end,
       })
       require("noice").setup({
+        notify = {
+          enabled = true,
+          view = "notify",
+          timeout = 2000, -- Auto-dismiss after 2 seconds
+        },
+        lsp = {
+          -- Override markdown rendering so that **cmp** and other plugins use Treesitter
+          override = {
+            ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+            ["vim.lsp.util.stylize_markdown"] = true,
+            ["cmp.entry.get_documentation"] = true,
+          },
+        },
+        presets = {
+          bottom_search = false,        -- Use a classic bottom cmdline for search
+          command_palette = false,      -- Position the cmdline and popupmenu together
+          long_message_to_split = true, -- Long messages will be sent to a split
+          inc_rename = false,           -- Enables an input dialog for inc-rename.nvim
+          lsp_doc_border = false,       -- Add a border to hover docs and signature help
+        },
+        routes = {
+          {
+            filter = {
+              event = "msg_show",
+              any = {
+                { find = "%d+L, %d+B" },
+                { find = "; after #%d+" },
+                { find = "; before #%d+" },
+                { find = "lines yanked" },
+                { find = "written" },
+                { find = "search hit BOTTOM" },
+                { find = "search hit TOP" },
+              },
+            },
+            view = "mini",
+          },
+          -- Reduce verbosity of certain LSP messages but keep some visible
+          {
+            filter = {
+              event = "lsp",
+              kind = "progress",
+              cond = function(message)
+                local client = vim.tbl_get(message.opts, "progress", "client")
+                return client == "null-ls"
+              end,
+            },
+            opts = { skip = true },
+          },
+        },
       })
     end,
   },
 }
 
--- Copilot completion plugin
--- table.insert(lvim.plugins, {
---   "zbirenbaum/copilot-cmp",
---   event = "InsertEnter",
---   dependencies = { "zbirenbaum/copilot.lua" },
---   config = function()
---     local ok, cmp = pcall(require, "copilot_cmp")
---     if ok then cmp.setup({}) end
---   end,
--- })
 
--- Display builtin terminal as vertical split
-lvim.builtin.terminal.direction = "vertical" -- or "horizontal"
-lvim.builtin.terminal.size = 60
-
--- use ctrl+j/k to navigate the telescope file search results
 lvim.builtin.telescope = {
   defaults = {
     layout_strategy = "horizontal",
     layout_config = {
       width = 0.9,
-      preview_width = 0.6,
       prompt_position = "bottom",
       horizontal = {
         preview_cutoff = 0,
@@ -241,9 +343,11 @@ lvim.builtin.telescope = {
       "--hidden", -- include hidden files like `.github`
     },
     mappings = {
+      -- use ctrl+j/k to navigate the telescope file search results
       i = {
         ["<C-j>"] = require("telescope.actions").move_selection_next,
         ["<C-k>"] = require("telescope.actions").move_selection_previous,
+        ["<Tab>"] = require("telescope.actions").select_default,
         ["<C-y>"] = function(prompt_bufnr)
           local entry = require("telescope.actions.state").get_selected_entry()
           local path = entry.path or entry.filename
@@ -257,11 +361,22 @@ lvim.builtin.telescope = {
       },
     },
   },
-  -- sort the results in the buffer finder by most recently used at the bottom
   pickers = {
+    -- sort the results in the buffer finder by most recently used at the bottom
     buffers = {
       sort_lastused = true,
       sort_mru = true,
+      initial_mode = "insert",
+      default_selection_index = 1, -- Start with the most recent buffer selected
+      layout_strategy = "vertical",
+      layout_config = {
+        width = 0.5,
+        height = 0.5,
+        preview_cutoff = 0,
+        vertical = {
+          preview_height = 0.4,
+        },
+      },
       mappings = {
         i = {
           ["<C-d>"] = "delete_buffer",
@@ -269,6 +384,19 @@ lvim.builtin.telescope = {
       },
       -- Custom sorter to reverse order (most recent at bottom)
       sorter = require("telescope.sorters").get_generic_fuzzy_sorter({}),
+    },
+    git_files = {
+      initial_mode = "insert",
+      layout_strategy = "vertical",
+      layout_config = {
+        width = 0.5,
+        height = 0.5,
+        preview_cutoff = 0,
+        vertical = {
+          preview_height = 0.4,
+        },
+      },
+      git_command = { 'git', 'ls-files', '--exclude-standard', '--others', '--cached', ':!:*.git/*' },
     },
   },
 }
