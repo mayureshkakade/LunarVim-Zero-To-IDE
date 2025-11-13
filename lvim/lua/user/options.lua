@@ -64,3 +64,6 @@ lvim.builtin.terminal.float_opts = {
   height = 35,
 }
 -- lvim.builtin.project.patterns = { ".git", "package-lock.json", "yarn.lock", "package.json" }
+
+vim.fn.setenv('GOOGLE_SEARCH_API_KEY', '')
+vim.fn.setenv('GOOGLE_SEARCH_ENGINE_ID', '')

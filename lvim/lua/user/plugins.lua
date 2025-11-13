@@ -2,11 +2,12 @@ lvim.plugins = {
   -- Better copilot plugin for autocompletions
   {
     "zbirenbaum/copilot.lua",
+    commit = "5a08ab9",
     cmd = "Copilot",
     event = "InsertEnter",
     config = function()
       require("copilot").setup({
-        -- This is correct: disable copilot's UI
+        -- Disable copilot's UI
         suggestion = { enabled = false },
         panel = { enabled = false },
         filetypes = {
@@ -44,16 +45,8 @@ lvim.plugins = {
       },
     },
   },
-  -- {
-  --   "zbirenbaum/copilot-cmp",
-  --   event = "InsertEnter",
-  --   dependencies = { "zbirenbaum/copilot.lua" },
-  --   config = function()
-  --     require("copilot_cmp").setup()
-  --   end
-  -- },
 
-  -- Official GitHub Copilot plugin for AI code suggestions in real-time.
+  -- Official GitHub Copilot plugin for AI code suggestions in real-time. This is used by Avant.nvim.
   {
     "github/copilot.vim",
     -- event = "InsertEnter",
@@ -75,10 +68,15 @@ lvim.plugins = {
       provider = "copilot",
       providers = {
         copilot = {
-          -- model = 'claude-sonnet-4'
-          model = 'gpt-4.1',
+          model = 'claude-sonnet-4',
+          timeout = 30000,
+          -- model = 'gpt-4.1',
           -- max_context_tokens = 8000
         },
+      },
+      web_search_engine = {
+        provider = "google", -- tavily, serpapi, google, kagi, brave, or searxng
+        proxy = nil,         -- proxy support, e.g., http://127.0.0.1:7890
       },
       windows = {
         sidebar = {
@@ -238,7 +236,7 @@ lvim.plugins = {
     config = function()
       require("notify").setup({
         background_colour = "#000000",
-        timeout = 2000,              -- Auto-dismiss after 2 seconds
+        timeout = 5000,              -- Auto-dismiss after 5 seconds
         max_width = 60,              -- Limit notification width
         max_height = 15,             -- Limit notification height
         minimum_width = 40,          -- Minimum width for consistency
@@ -268,7 +266,7 @@ lvim.plugins = {
         notify = {
           enabled = true,
           view = "notify",
-          timeout = 2000, -- Auto-dismiss after 2 seconds
+          timeout = 5000, -- Auto-dismiss after 5 seconds
         },
         lsp = {
           -- Override markdown rendering so that **cmp** and other plugins use Treesitter
