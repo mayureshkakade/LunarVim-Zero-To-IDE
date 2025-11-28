@@ -50,14 +50,14 @@ vim.opt.runtimepath:remove("/usr/share/vim/vimfiles") -- separate vim plugins fr
 lvim.format_on_save = true
 lvim.builtin.project.detection_methods = { "pattern" }
 lvim.builtin.project.patterns = { ".git" }
-lvim.colorscheme = "ayu"
+-- lvim.colorscheme = "ayu"
 lvim.transparent_window = true
 
 -- Disable the nvim.cmp since we are using Blink.cmp
 lvim.builtin.cmp.active = false
 
 -- Display builtin terminal as vertical split. Comment below code to use toggle terminal.
-lvim.builtin.terminal.direction = "float"
+lvim.builtin.terminal.direction = "horizontal"
 -- lvim.builtin.terminal.size = 20
 lvim.builtin.terminal.float_opts = {
   width = 85,

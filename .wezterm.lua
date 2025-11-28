@@ -1,101 +1,155 @@
 local wezterm = require 'wezterm'
+local mux = wezterm.mux
+local act = wezterm.action
+
+-- === DAEMON MODE SESSION PERSISTENCE ===
+-- WezTerm will maintain pane layouts when using mux server (daemon mode)
+-- Use `wezterm connect unix` to attach to existing session
+
+-- Set a default workspace name
+local WORKSPACE_NAME = 'main'
+
+-- mux-startup fires when the mux server starts (not GUI)
+-- Only create initial window here
+wezterm.on('mux-startup', function()
+  local tab, pane, window = mux.spawn_window {
+    workspace = WORKSPACE_NAME,
+  }
+  mux.set_active_workspace(WORKSPACE_NAME)
+end)
+
+-- gui-attached fires when a GUI connects to the mux server
+-- This handles both new connections and reconnections
+wezterm.on('gui-attached', function(domain)
+  local workspace = mux.get_active_workspace()
+  for _, window in ipairs(mux.all_windows()) do
+    if window:get_workspace() == workspace then
+      local gui = window:gui_window()
+      if gui then
+        gui:maximize()
+      end
+    end
+  end
+end)
+
+-- Minimal tab formatting - just show tab numbers
+wezterm.on('format-tab-title', function(tab)
+  return string.format(' %d ', tab.tab_index + 1)
+end)
 
 return {
+  -- === SESSION PERSISTENCE SETTINGS ===
+  default_cwd = wezterm.home_dir,
+  default_workspace = WORKSPACE_NAME,
+
+  -- Enable mux server for session persistence
+  unix_domains = {
+    {
+      name = 'unix',
+    },
+  },
+
+  -- IMPORTANT: This makes `wezterm` command automatically connect to mux server
+  default_gui_startup_args = { 'connect', 'unix' },
+
   keys = {
-    { key = '1', mods = 'ALT', action = wezterm.action.ActivateTab(0) },
-    { key = '2', mods = 'ALT', action = wezterm.action.ActivateTab(1) },
-    { key = '3', mods = 'ALT', action = wezterm.action.ActivateTab(2) },
-    { key = '4', mods = 'ALT', action = wezterm.action.ActivateTab(3) },
-    { key = '5', mods = 'ALT', action = wezterm.action.ActivateTab(4) },
-    { key = '6', mods = 'ALT', action = wezterm.action.ActivateTab(5) },
-    { key = '7', mods = 'ALT', action = wezterm.action.ActivateTab(6) },
-    { key = '8', mods = 'ALT', action = wezterm.action.ActivateTab(7) },
-    { key = '9', mods = 'ALT', action = wezterm.action.ActivateTab(8) },
+    { key = '1', mods = 'ALT', action = act.ActivateTab(0) },
+    { key = '2', mods = 'ALT', action = act.ActivateTab(1) },
+    { key = '3', mods = 'ALT', action = act.ActivateTab(2) },
+    { key = '4', mods = 'ALT', action = act.ActivateTab(3) },
+    { key = '5', mods = 'ALT', action = act.ActivateTab(4) },
+    { key = '6', mods = 'ALT', action = act.ActivateTab(5) },
+    { key = '7', mods = 'ALT', action = act.ActivateTab(6) },
+    { key = '8', mods = 'ALT', action = act.ActivateTab(7) },
+    { key = '9', mods = 'ALT', action = act.ActivateTab(8) },
     {
       key = 'p',
       mods = 'CTRL',
-      action = wezterm.action.ShowTabNavigator,
+      action = act.ShowTabNavigator,
     },
+
+    -- === WORKSPACE/SESSION MANAGEMENT ===
+    -- Show workspace chooser to switch between saved sessions
+    {
+      key = 'R',
+      mods = 'CTRL|SHIFT',
+      action = act.ShowLauncherArgs { flags = 'FUZZY|WORKSPACES' }
+    },
+
     -- Add split pane shortcuts for more terminal management (avoiding paste conflict)
-    { key = 'v',          mods = 'CTRL|ALT',   action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' } },
-    { key = 'h',          mods = 'CTRL|ALT',   action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' } },
-    { key = 'x',          mods = 'CTRL|SHIFT', action = wezterm.action.CloseCurrentPane { confirm = true } },
+    { key = 'v',          mods = 'CTRL|ALT',   action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+    { key = 'h',          mods = 'CTRL|ALT',   action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+    { key = 'x',          mods = 'CTRL|SHIFT', action = act.CloseCurrentPane { confirm = true } },
 
     -- Vim-style pane navigation
-    { key = 'h',          mods = 'CTRL|SHIFT', action = wezterm.action.ActivatePaneDirection 'Left' },
-    { key = 'j',          mods = 'CTRL|SHIFT', action = wezterm.action.ActivatePaneDirection 'Down' },
-    { key = 'k',          mods = 'CTRL|SHIFT', action = wezterm.action.ActivatePaneDirection 'Up' },
-    { key = 'l',          mods = 'CTRL|SHIFT', action = wezterm.action.ActivatePaneDirection 'Right' },
+    { key = 'h',          mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Left' },
+    { key = 'j',          mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Down' },
+    { key = 'k',          mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Up' },
+    { key = 'l',          mods = 'CTRL|SHIFT', action = act.ActivatePaneDirection 'Right' },
 
     -- Pane resizing with arrow keys
-    { key = 'LeftArrow',  mods = 'CTRL|SHIFT', action = wezterm.action.AdjustPaneSize { 'Left', 5 } },
-    { key = 'RightArrow', mods = 'CTRL|SHIFT', action = wezterm.action.AdjustPaneSize { 'Right', 5 } },
-    { key = 'UpArrow',    mods = 'CTRL|SHIFT', action = wezterm.action.AdjustPaneSize { 'Up', 5 } },
-    { key = 'DownArrow',  mods = 'CTRL|SHIFT', action = wezterm.action.AdjustPaneSize { 'Down', 5 } },
-
-    -- Vim mode in terminal prompt (Ctrl+Space enters vim mode)
-    -- { key = 'Space',      mods = 'CTRL',       action = wezterm.action.SendKey { key = 'Escape' } },
+    { key = 'LeftArrow',  mods = 'CTRL|SHIFT', action = act.AdjustPaneSize { 'Left', 5 } },
+    { key = 'RightArrow', mods = 'CTRL|SHIFT', action = act.AdjustPaneSize { 'Right', 5 } },
+    { key = 'UpArrow',    mods = 'CTRL|SHIFT', action = act.AdjustPaneSize { 'Up', 5 } },
+    { key = 'DownArrow',  mods = 'CTRL|SHIFT', action = act.AdjustPaneSize { 'Down', 5 } },
 
     -- Copy mode for navigating terminal output with vim keys
-    { key = 'Space',      mods = 'CTRL|SHIFT', action = wezterm.action.ActivateCopyMode },
-    { key = 'L',          mods = 'CTRL|SHIFT', action = wezterm.action.ShowDebugOverlay },
+    { key = 'Space',      mods = 'CTRL|SHIFT', action = act.ActivateCopyMode },
+    { key = 'D',          mods = 'CTRL|SHIFT', action = act.ShowDebugOverlay },
   },
 
   -- Copy mode key table for vim-style navigation
   key_tables = {
     copy_mode = {
       -- Vim navigation
-      { key = 'h', action = wezterm.action.CopyMode 'MoveLeft' },
-      { key = 'j', action = wezterm.action.CopyMode 'MoveDown' },
-      { key = 'k', action = wezterm.action.CopyMode 'MoveUp' },
-      { key = 'l', action = wezterm.action.CopyMode 'MoveRight' },
+      { key = 'h', action = act.CopyMode 'MoveLeft' },
+      { key = 'j', action = act.CopyMode 'MoveDown' },
+      { key = 'k', action = act.CopyMode 'MoveUp' },
+      { key = 'l', action = act.CopyMode 'MoveRight' },
 
       -- Word navigation
-      { key = 'w', action = wezterm.action.CopyMode 'MoveForwardWord' },
-      { key = 'b', action = wezterm.action.CopyMode 'MoveBackwardWord' },
-      { key = 'e', action = wezterm.action.CopyMode 'MoveForwardWordEnd' },
+      { key = 'w', action = act.CopyMode 'MoveForwardWord' },
+      { key = 'b', action = act.CopyMode 'MoveBackwardWord' },
+      { key = 'e', action = act.CopyMode 'MoveForwardWordEnd' },
 
       -- Line navigation
-      { key = '0', action = wezterm.action.CopyMode 'MoveToStartOfLine' },
-      { key = '$', action = wezterm.action.CopyMode 'MoveToEndOfLineContent' },
-      { key = '^', action = wezterm.action.CopyMode 'MoveToStartOfLineContent' },
+      { key = '0', action = act.CopyMode 'MoveToStartOfLine' },
+      { key = '$', action = act.CopyMode 'MoveToEndOfLineContent' },
+      { key = '^', action = act.CopyMode 'MoveToStartOfLineContent' },
 
       -- Page navigation
-      { key = 'g', action = wezterm.action.CopyMode 'MoveToScrollbackTop' },
-      { key = 'G', action = wezterm.action.CopyMode 'MoveToScrollbackBottom' },
-      { key = 'u', mods = 'CTRL',                                                 action = wezterm.action.CopyMode 'PageUp' },
-      { key = 'd', mods = 'CTRL',                                                 action = wezterm.action.CopyMode 'PageDown' },
-      { key = 'b', mods = 'CTRL',                                                 action = wezterm.action.CopyMode 'PageUp' },
-      { key = 'f', mods = 'CTRL',                                                 action = wezterm.action.CopyMode 'PageDown' },
+      { key = 'g', action = act.CopyMode 'MoveToScrollbackTop' },
+      { key = 'G', action = act.CopyMode 'MoveToScrollbackBottom' },
+      { key = 'u', mods = 'CTRL',                                      action = act.CopyMode 'PageUp' },
+      { key = 'd', mods = 'CTRL',                                      action = act.CopyMode 'PageDown' },
+      { key = 'b', mods = 'CTRL',                                      action = act.CopyMode 'PageUp' },
+      { key = 'f', mods = 'CTRL',                                      action = act.CopyMode 'PageDown' },
 
       -- Search
-      { key = '/', action = wezterm.action.Search { CaseSensitiveString = '' } },
-      { key = 'n', action = wezterm.action.CopyMode 'NextMatch' },
-      { key = 'N', action = wezterm.action.CopyMode 'PriorMatch' },
+      { key = '/', action = act.Search { CaseSensitiveString = '' } },
+      { key = 'n', action = act.CopyMode 'NextMatch' },
+      { key = 'N', action = act.CopyMode 'PriorMatch' },
 
       -- Selection and copying
-      { key = 'v', action = wezterm.action.CopyMode { SetSelectionMode = 'Cell' } },
-      { key = 'V', action = wezterm.action.CopyMode { SetSelectionMode = 'Line' } },
-      { key = 'v', mods = 'CTRL',                                                 action = wezterm.action.CopyMode { SetSelectionMode = 'Block' } },
+      { key = 'v', action = act.CopyMode { SetSelectionMode = 'Cell' } },
+      { key = 'V', action = act.CopyMode { SetSelectionMode = 'Line' } },
+      { key = 'v', mods = 'CTRL',                                      action = act.CopyMode { SetSelectionMode = 'Block' } },
       {
         key = 'y',
-        action = wezterm.action.Multiple {
+        action = act.Multiple {
           { CopyTo = 'ClipboardAndPrimarySelection' },
           { CopyMode = 'Close' }
         }
       },
 
       -- Exit copy mode
-      { key = 'Escape', action = wezterm.action.CopyMode 'Close' },
-      { key = 'i',      action = wezterm.action.CopyMode 'Close' },
-      { key = 'c',      mods = 'CTRL',                           action = wezterm.action.CopyMode 'Close' },
+      { key = 'Escape', action = act.CopyMode 'Close' },
+      { key = 'i',      action = act.CopyMode 'Close' },
+      { key = 'c',      mods = 'CTRL',                action = act.CopyMode 'Close' },
     },
   },
 
   -- === ULTRA SLEEK APPEARANCE SETTINGS ===
-  -- Enhanced color scheme for modern look
-  color_scheme = 'Tokyo Night Storm',
-
   -- Premium font configuration
   font = wezterm.font_with_fallback({
     { family = 'FiraCode Nerd Font', weight = 'Regular' },
@@ -109,34 +163,27 @@ return {
   cell_width = 1.0,
 
   -- === PREMIUM WINDOW STYLING ===
-  -- Completely remove native title bar for ultra-clean look
   window_decorations = "NONE",
-
-  -- Enhanced window appearance with glass effect
-  window_background_opacity = 0.98,
+  window_background_opacity = 1.0,
   text_background_opacity = 1.0,
+  window_background_gradient = nil,
+  -- window_background_gradient = {
+  --   colors = { '#0d1117', '#161b22', '#21262d' },
+  --   orientation = { Linear = { angle = -45.0 } },
+  --   interpolation = 'CatmullRom',
+  --   blend = 'Rgb',
+  --   noise = 24,
+  -- },
 
-  -- Sophisticated gradient background
-  window_background_gradient = {
-    colors = { '#0d1117', '#161b22', '#21262d' },
-    orientation = { Linear = { angle = -45.0 } },
-    interpolation = 'CatmullRom',
-    blend = 'Rgb',
-    noise = 24,
-  },
+  macos_window_background_blur = 0,
 
-  -- Enhanced blur for modern glass effect
-  macos_window_background_blur = 30,
-
-  -- Refined window padding
   window_padding = {
     left = 12,
     right = 12,
-    top = 12,
+    top = 8,
     bottom = 12,
   },
 
-  -- Window frame styling for borderless look
   window_frame = {
     border_left_width = '0px',
     border_right_width = '0px',
@@ -144,13 +191,13 @@ return {
     border_top_height = '0px',
   },
 
-  -- === SOPHISTICATED TAB BAR ===
+  -- === MINIMAL TAB BAR ===
   use_fancy_tab_bar = false,
   tab_bar_at_bottom = false,
   hide_tab_bar_if_only_one_tab = false,
-  tab_max_width = 32,
+  tab_max_width = 16,
 
-  -- Premium tab styling
+  -- Minimal tab styling
   colors = {
     foreground = '#c9d1d9',
     background = '#0d1117',
@@ -176,7 +223,7 @@ return {
     },
 
     tab_bar = {
-      background = 'rgba(13, 17, 23, 0.95)',
+      background = 'rgba(13, 17, 23, 0.5)',
 
       active_tab = {
         bg_color = '#58a6ff',
@@ -185,20 +232,20 @@ return {
       },
 
       inactive_tab = {
-        bg_color = 'rgba(33, 38, 45, 0.8)',
-        fg_color = '#8b949e',
+        bg_color = 'rgba(33, 38, 45, 0.3)',
+        fg_color = '#6e7681',
         italic = false,
       },
 
       inactive_tab_hover = {
-        bg_color = 'rgba(48, 54, 61, 0.9)',
-        fg_color = '#f0f6fc',
+        bg_color = 'rgba(48, 54, 61, 0.5)',
+        fg_color = '#c9d1d9',
         italic = false,
       },
 
       new_tab = {
-        bg_color = 'rgba(33, 38, 45, 0.8)',
-        fg_color = '#8b949e',
+        bg_color = 'rgba(33, 38, 45, 0.3)',
+        fg_color = '#6e7681',
       },
 
       new_tab_hover = {
@@ -211,12 +258,11 @@ return {
   -- === PERFORMANCE & SMOOTHNESS ===
   enable_wayland = false,
   enable_scroll_bar = false,
-  animation_fps = 120,
-  max_fps = 120,
-  scrollback_lines = 10000,
+  animation_fps = 60,
+  max_fps = 60,
+  scrollback_lines = 5000,
   front_end = "WebGpu",
 
-  -- Optimized WebGPU settings
   webgpu_preferred_adapter = {
     backend = "Vulkan",
     device = 39745,
@@ -229,46 +275,37 @@ return {
   webgpu_power_preference = "HighPerformance",
 
   -- === PREMIUM USER EXPERIENCE ===
-  -- Enhanced cursor with smooth animations
-  default_cursor_style = 'BlinkingBlock',
-  cursor_blink_rate = 700,
+  default_cursor_style = 'SteadyBlock',
+  cursor_blink_rate = 0,
   cursor_blink_ease_in = 'Ease',
   cursor_blink_ease_out = 'Ease',
 
-  -- Refined bell with subtle visual feedback
   audible_bell = 'Disabled',
   visual_bell = {
-    fade_in_duration_ms = 100,
-    fade_out_duration_ms = 200,
+    fade_in_duration_ms = 0,
+    fade_out_duration_ms = 0,
     target = 'BackgroundColor',
   },
 
-  -- Modern input handling
   enable_kitty_keyboard = true,
   enable_csi_u_key_encoding = false,
 
-  -- Additional sleek features
   adjust_window_size_when_changing_font_size = false,
   automatically_reload_config = true,
   check_for_updates = false,
   use_ime = true,
 
-  -- Smooth scrolling configuration
   alternate_buffer_wheel_scroll_speed = 3,
   bypass_mouse_reporting_modifiers = "SHIFT",
 
-  -- Window management
   initial_cols = 120,
   initial_rows = 32,
   window_close_confirmation = 'NeverPrompt',
 
-  -- Advanced rendering
   bold_brightens_ansi_colors = true,
   force_reverse_video_cursor = false,
 
-  -- Hyperlink styling
   hyperlink_rules = {
-    -- Linkify things that look like URLs
     {
       regex = "\\b\\w+://[\\w.-]+\\.[a-z]{2,15}\\S*\\b",
       format = "$0",

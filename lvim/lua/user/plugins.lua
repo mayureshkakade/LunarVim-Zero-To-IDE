@@ -47,98 +47,136 @@ lvim.plugins = {
   },
 
   -- Official GitHub Copilot plugin for AI code suggestions in real-time. This is used by Avant.nvim.
-  {
-    "github/copilot.vim",
-    -- event = "InsertEnter",
-    config = function()
-      -- vim.g.copilot_no_tab_map = true
-      vim.g.copilot_filetypes = { ["*"] = false } -- Disable Copilot for all file types by default so that inline suggestions don't interfere with Blink CMP
-      -- vim.api.nvim_set_keymap("i", "<C-j>", 'copilot#Accept("<CR>")', { silent = true, expr = true, script = true })
-      -- vim.api.nvim_set_keymap("i", "<C-k>", 'copilot#Dismiss()', { silent = true, expr = true, script = true })
-    end,
-  },
+  -- {
+  --   "github/copilot.vim",
+  --   -- event = "InsertEnter",
+  --   config = function()
+  --     -- vim.g.copilot_no_tab_map = true
+  --     vim.g.copilot_filetypes = { ["*"] = false } -- Disable Copilot for all file types by default so that inline suggestions don't interfere with Blink CMP
+  --     -- vim.api.nvim_set_keymap("i", "<C-j>", 'copilot#Accept("<CR>")', { silent = true, expr = true, script = true })
+  --     -- vim.api.nvim_set_keymap("i", "<C-k>", 'copilot#Dismiss()', { silent = true, expr = true, script = true })
+  --   end,
+  -- },
 
   -- AI-powered code assistant that provides intelligent code completions and explanations.
+  -- {
+  --   "yetone/avante.nvim",
+  --   build = "make",
+  --   event = "VeryLazy",
+  --   version = false,
+  --   opts = {
+  --     provider = "copilot",
+  --     providers = {
+  --       copilot = {
+  --         model = 'claude-sonnet-4',
+  --         timeout = 30000,
+  --         -- model = 'gpt-4.1',
+  --         -- max_context_tokens = 8000
+  --       },
+  --     },
+  --     web_search_engine = {
+  --       provider = "google", -- tavily, serpapi, google, kagi, brave, or searxng
+  --       proxy = nil,         -- proxy support, e.g., http://127.0.0.1:7890
+  --     },
+  --     windows = {
+  --       sidebar = {
+  --         width = 50,
+  --         position = "right",
+  --         winblend = 80, -- Make sidebar transparent (0-100, higher = more transparent)
+  --       },
+  --       input = {
+  --         prefix = "> ",
+  --         winblend = 20, -- Make input window transparent
+  --       },
+  --       edit = {
+  --         border = "rounded",
+  --         winblend = 20, -- Make edit window transparent
+  --       },
+  --       ask = {
+  --         floating = true,
+  --         border = "rounded",
+  --         winblend = 70, -- Make ask window transparent
+  --       },
+  --     },
+  --     behaviour = {
+  --       auto_suggestions = false,
+  --       auto_set_highlight_group = true,
+  --       auto_set_keymaps = true,
+  --       auto_apply_diff_after_generation = false,
+  --       support_paste_from_clipboard = false,
+  --     },
+  --     mappings = {
+  --       ask = "<leader>aa",
+  --       edit = "<leader>ae",
+  --       refresh = "<leader>ar",
+  --       diff = {
+  --         ours = "co",
+  --         theirs = "ct",
+  --         both = "cb",
+  --         next = "]x",
+  --         prev = "[x",
+  --       },
+  --     },
+  --   },
+  --   config = function(_, opts)
+  --     require("avante").setup(opts)
+  --   end,
+  --   dependencies = {
+  --     "nvim-lua/plenary.nvim",
+  --     "MunifTanjim/nui.nvim",
+  --     "nvim-tree/nvim-web-devicons",
+  --     "github/copilot.vim",
+  --     {
+  --       'MeanderingProgrammer/render-markdown.nvim',
+  --       opts = {
+  --         file_types = { "markdown", "Avante" },
+  --       },
+  --       ft = { "markdown", "Avante" },
+  --     },
+  --   },
+  -- },
+
+  -- OpenCode.nvim - AI-powered coding assistant integrated directly into Neovim
   {
-    "yetone/avante.nvim",
-    build = "make",
-    event = "VeryLazy",
-    version = false,
-    opts = {
-      provider = "copilot",
-      providers = {
-        copilot = {
-          model = 'claude-sonnet-4',
-          timeout = 30000,
-          -- model = 'gpt-4.1',
-          -- max_context_tokens = 8000
-        },
-      },
-      web_search_engine = {
-        provider = "google", -- tavily, serpapi, google, kagi, brave, or searxng
-        proxy = nil,         -- proxy support, e.g., http://127.0.0.1:7890
-      },
-      windows = {
-        sidebar = {
-          width = 50,
-          position = "right",
-          winblend = 80, -- Make sidebar transparent (0-100, higher = more transparent)
-        },
-        input = {
-          prefix = "> ",
-          winblend = 20, -- Make input window transparent
-        },
-        edit = {
-          border = "rounded",
-          winblend = 20, -- Make edit window transparent
-        },
-        ask = {
-          floating = true,
-          border = "rounded",
-          winblend = 70, -- Make ask window transparent
-        },
-      },
-      behaviour = {
-        auto_suggestions = false,
-        auto_set_highlight_group = true,
-        auto_set_keymaps = true,
-        auto_apply_diff_after_generation = false,
-        support_paste_from_clipboard = false,
-      },
-      mappings = {
-        ask = "<leader>aa",
-        edit = "<leader>ae",
-        refresh = "<leader>ar",
-        diff = {
-          ours = "co",
-          theirs = "ct",
-          both = "cb",
-          next = "]x",
-          prev = "[x",
-        },
-      },
-    },
-    config = function(_, opts)
-      require("avante").setup(opts)
-    end,
+    "NickvanDyke/opencode.nvim",
     dependencies = {
-      "nvim-lua/plenary.nvim",
-      "MunifTanjim/nui.nvim",
-      "nvim-tree/nvim-web-devicons",
-      "github/copilot.vim",
-      {
-        'MeanderingProgrammer/render-markdown.nvim',
-        opts = {
-          file_types = { "markdown", "Avante" },
-        },
-        ft = { "markdown", "Avante" },
-      },
+      -- Recommended for `ask()` and `select()`.
+      -- Required for `snacks` provider.
+      -- -@module 'snacks' <- Loads `snacks.nvim` types for configuration intellisense.
+      { "folke/snacks.nvim", opts = { input = {}, picker = {}, terminal = {} } },
     },
+    config = function()
+      -- -@type opencode.Opts
+      vim.g.opencode_opts = {
+        -- Your configuration, if any — see `lua/opencode/config.lua`, or "goto definition".
+      }
+
+      -- Required for `opts.events.reload`.
+      vim.o.autoread = true
+
+      -- Recommended/example keymaps.
+      vim.keymap.set({ "n", "x" }, "<C-a>", function() require("opencode").ask("@this: ", { submit = true }) end,
+        { desc = "Ask opencode" })
+      vim.keymap.set({ "n", "x" }, "<C-x>", function() require("opencode").select() end,
+        { desc = "Execute opencode action…" })
+      vim.keymap.set({ "n", "x" }, "ga", function() require("opencode").prompt("@buffer") end,
+        { desc = "Add to opencode" })
+      vim.keymap.set({ "n", "t" }, "<C-.>", function() require("opencode").toggle() end, { desc = "Toggle opencode" })
+      -- You may want these if you stick with the opinionated "<C-a>" and "<C-x>" above — otherwise consider "<leader>o".
+      vim.keymap.set('n', '+', '<C-a>', { desc = 'Increment', noremap = true })
+      vim.keymap.set('n', '-', '<C-x>', { desc = 'Decrement', noremap = true })
+    end,
   },
 
   -- Colorschemes: Examples of themes to customize the appearance of your editor.
   { "tomasr/molokai" },
   { "ayu-theme/ayu-vim" },
+  {
+    "folke/tokyonight.nvim",
+    lazy = false,
+    priority = 1000,
+    opts = {},
+  },
 
   -- Plugin to highlight and manage TODO comments in your code, improving task management.
   {
@@ -194,41 +232,10 @@ lvim.plugins = {
     end,
   },
 
-  -- Octo plugin for github issues
-  -- commands
-  -- Octo pr list
-  -- Octo pr search
-  -- Octo review start
-  -- {
-  --   "pwntester/octo.nvim",
-  --   dependencies = {
-  --     "nvim-lua/plenary.nvim",
-  --     "nvim-telescope/telescope.nvim",
-  --     "nvim-tree/nvim-web-devicons",
-  --   },
-  --   config = function()
-  --     require("octo").setup()
-  --   end,
-  -- },
-
   -- Noice.nvim plugin for enhanced command line and message handling in Neovim.
   {
     "folke/noice.nvim",
     event = "VeryLazy",
-    opts = {
-      cmdline = {
-        enabled = true,
-        view = "cmdline_popup",
-      },
-      messages = {
-        enabled = true,
-        view = "notify",
-        view_error = "notify",
-        view_warn = "notify",
-        view_history = "messages",
-        view_search = "virtualtext",
-      },
-    },
     dependencies = {
       "MunifTanjim/nui.nvim",
       "rcarriga/nvim-notify",
@@ -236,17 +243,15 @@ lvim.plugins = {
     config = function()
       require("notify").setup({
         background_colour = "#000000",
-        timeout = 5000,              -- Auto-dismiss after 5 seconds
-        max_width = 60,              -- Limit notification width
-        max_height = 15,             -- Limit notification height
-        minimum_width = 40,          -- Minimum width for consistency
-        level = vim.log.levels.INFO, -- Show info level and above for better visibility
+        timeout = 5000,
+        max_width = 60,
+        max_height = 15,
+        minimum_width = 40,
+        level = vim.log.levels.INFO,
         render = "compact",
-        stages = "static",           -- Use static stage for immediate timeout respect
-        top_down = false,            -- Show notifications from bottom up
-        fps = 60,                    -- Smooth animation
-        animation = "fade",          -- Use fade animation instead of stages
-        hide_from_history = false,   -- Keep in history but respect timeout
+        stages = "static",
+        top_down = false,
+        hide_from_history = false,
         icons = {
           ERROR = "",
           WARN = "",
@@ -255,21 +260,26 @@ lvim.plugins = {
           TRACE = "✎",
         },
         on_open = function(win)
-          -- Make notifications non-focusable but ensure they're visible
           vim.api.nvim_win_set_config(win, {
             focusable = false,
-            zindex = 100 -- Ensure notifications appear on top
+            zindex = 100,
           })
         end,
       })
       require("noice").setup({
-        notify = {
+        cmdline = {
+          enabled = true,
+          view = "cmdline_popup",
+        },
+        messages = {
           enabled = true,
           view = "notify",
-          timeout = 5000, -- Auto-dismiss after 5 seconds
+          view_error = "notify",
+          view_warn = "notify",
+          view_history = "messages",
+          view_search = "virtualtext",
         },
         lsp = {
-          -- Override markdown rendering so that **cmp** and other plugins use Treesitter
           override = {
             ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
             ["vim.lsp.util.stylize_markdown"] = true,
@@ -277,11 +287,11 @@ lvim.plugins = {
           },
         },
         presets = {
-          bottom_search = false,        -- Use a classic bottom cmdline for search
-          command_palette = false,      -- Position the cmdline and popupmenu together
-          long_message_to_split = true, -- Long messages will be sent to a split
-          inc_rename = false,           -- Enables an input dialog for inc-rename.nvim
-          lsp_doc_border = false,       -- Add a border to hover docs and signature help
+          bottom_search = false,
+          command_palette = false,
+          long_message_to_split = true,
+          inc_rename = false,
+          lsp_doc_border = false,
         },
         routes = {
           {
@@ -299,7 +309,7 @@ lvim.plugins = {
             },
             view = "mini",
           },
-          -- Reduce verbosity of certain LSP messages but keep some visible
+          -- Skip null-ls LSP progress messages to reduce noise
           {
             filter = {
               event = "lsp",
@@ -311,6 +321,57 @@ lvim.plugins = {
             },
             opts = { skip = true },
           },
+        },
+      })
+    end,
+  },
+
+  -- Barbar.nvim - Enhanced tabline for buffer and tab management with visual indicators
+  {
+    "romgrk/barbar.nvim",
+    event = "VimEnter",
+    dependencies = "nvim-tree/nvim-web-devicons",
+    config = function()
+      require("barbar").setup({
+        animation = true,
+        auto_hide = false,
+        tabpages = true,
+        clickable = true,
+        icons = {
+          button = '',
+          separator = { left = '▎', right = '' },
+          inactive = { separator = { left = '▎', right = '' } },
+        },
+      })
+    end,
+  },
+
+  -- Lualine.nvim - Customizable and lightweight statusline with mode, branch, diagnostics, and file info
+  {
+    "nvim-lualine/lualine.nvim",
+    dependencies = "nvim-tree/nvim-web-devicons",
+    config = function()
+      require("lualine").setup({
+        options = {
+          theme = "auto",
+          component_separators = { left = '|', right = '|' },
+          section_separators = { left = '', right = '' },
+          globalstatus = true,
+        },
+        sections = {
+          lualine_a = { "mode" },
+          lualine_b = { "branch", "diff", "diagnostics" },
+          lualine_c = {
+            {
+              function()
+                return vim.fn.getcwd()
+              end,
+              icon = '',
+            },
+          },
+          lualine_x = { "encoding", "fileformat", "filetype" },
+          lualine_y = { "progress" },
+          lualine_z = { "location" },
         },
       })
     end,
@@ -346,7 +407,7 @@ lvim.builtin.telescope = {
         ["<C-j>"] = require("telescope.actions").move_selection_next,
         ["<C-k>"] = require("telescope.actions").move_selection_previous,
         ["<Tab>"] = require("telescope.actions").select_default,
-        ["<C-y>"] = function(prompt_bufnr)
+        ["<C-y>"] = function()
           local entry = require("telescope.actions.state").get_selected_entry()
           local path = entry.path or entry.filename
           if path then
