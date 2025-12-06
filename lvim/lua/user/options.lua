@@ -51,6 +51,7 @@ lvim.format_on_save = true
 lvim.builtin.project.detection_methods = { "pattern" }
 lvim.builtin.project.patterns = { ".git" }
 -- lvim.colorscheme = "ayu"
+lvim.colorscheme = "tokyonight-night"
 lvim.transparent_window = true
 
 -- Disable the nvim.cmp since we are using Blink.cmp
