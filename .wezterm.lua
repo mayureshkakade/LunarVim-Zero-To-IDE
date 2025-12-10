@@ -10,20 +10,20 @@ end)
 
 return {
   default_domain = 'WSL:Ubuntu-22.04',
-
+  
   -- === BASIC SETTINGS ===
   default_cwd = wezterm.home_dir,
-
-  -- WezTerm treats WSL domains as special.
+  
+  -- WezTerm treats WSL domains as special. 
   -- We rely on the shell configuration (Step 3) to launch tmux.
-
+  
   keys = {
-
+        
     -- Utility
     { key = 'Space', mods = 'CTRL|SHIFT', action = act.ActivateCopyMode },
     { key = 'D',     mods = 'CTRL|SHIFT', action = act.ShowDebugOverlay },
-
-  },
+    
+      },
 
   -- === VISUALS ===
   font = wezterm.font_with_fallback({
@@ -33,11 +33,11 @@ return {
   }),
   font_size = 13.5,
   line_height = 1.3,
-
+  
   window_decorations = "TITLE | RESIZE",
   window_background_opacity = 1.0,
   text_background_opacity = 1.0,
-
+  
   window_padding = {
     left = 5,
     right = 5,
@@ -55,9 +55,9 @@ return {
   max_fps = 120,
   webgpu_power_preference = "HighPerformance",
   enable_scroll_bar = false,
-  scrollback_lines = 3000,
+  scrollback_lines = 3000, 
   default_cursor_style = 'SteadyBlock',
-  cursor_blink_rate = 0,
+  cursor_blink_rate = 0, 
 
   audible_bell = 'Disabled',
   visual_bell = {
@@ -68,6 +68,6 @@ return {
 
   enable_kitty_keyboard = true,
   check_for_updates = false,
-  alternate_buffer_wheel_scroll_speed = 5,
+  alternate_buffer_wheel_scroll_speed = 5, 
   window_close_confirmation = 'NeverPrompt',
 }
