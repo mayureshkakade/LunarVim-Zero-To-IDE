@@ -16,7 +16,6 @@ lvim.plugins = {
       })
     end,
   },
-
   -- Blink CMP plugin for better autocompletion experience with Copilot
   {
     "saghen/blink.cmp",
@@ -135,7 +134,11 @@ lvim.plugins = {
   --     },
   --   },
   -- },
-
+  {
+    'MeanderingProgrammer/render-markdown.nvim',
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.nvim' },
+    opts = { file_types = { 'markdown' }, render_modes = { 'n' } },
+  },
   -- OpenCode.nvim - AI-powered coding assistant integrated directly into Neovim
   {
     "NickvanDyke/opencode.nvim",
