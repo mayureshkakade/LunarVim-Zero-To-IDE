@@ -1,5 +1,8 @@
 lvim.plugins = {
-  -- Better copilot plugin for autocompletions
+  -- Copilot.lua: AI-powered code completion from GitHub Copilot
+  -- Description: Provides intelligent code suggestions and completions powered by GitHub Copilot.
+  -- Runs headless (no UI) and integrates seamlessly with blink.cmp for completion display.
+  -- Suggestion and panel UI are disabled to work with external completion plugins.
   {
     "zbirenbaum/copilot.lua",
     commit = "5a08ab9",
@@ -16,7 +19,13 @@ lvim.plugins = {
       })
     end,
   },
-  -- Blink CMP plugin for better autocompletion experience with Copilot
+  -- Blink CMP: Fast and feature-rich autocompletion engine
+  -- Description: Modern completion plugin with fuzzy matching, snippets, and LSP integration.
+  -- Works seamlessly with Copilot through the blink-cmp-copilot adapter.
+  -- Custom Keybindings:
+  --   <C-j> - Select next completion item
+  --   <C-k> - Select previous completion item
+  --   <Tab> - Accept and insert the selected completion
   {
     "saghen/blink.cmp",
     version = "1.*",
@@ -134,41 +143,84 @@ lvim.plugins = {
   --     },
   --   },
   -- },
+  -- Render Markdown: Live markdown rendering in Neovim buffers
+  -- Description: Displays markdown files with proper formatting, headers, code blocks, and inline
+  -- elements rendered visually in normal mode. Makes reading markdown documentation easier.
   {
     'MeanderingProgrammer/render-markdown.nvim',
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.nvim' },
     opts = { file_types = { 'markdown' }, render_modes = { 'n' } },
   },
+
   -- OpenCode.nvim - AI-powered coding assistant integrated directly into Neovim
+  -- {
+  --   "NickvanDyke/opencode.nvim",
+  --   dependencies = {
+  --     -- Recommended for `ask()` and `select()`.
+  --     -- Required for `snacks` provider.
+  --     -- -@module 'snacks' <- Loads `snacks.nvim` types for configuration intellisense.
+  --     { "folke/snacks.nvim", opts = { input = {}, picker = {}, terminal = {} } },
+  --   },
+  --   config = function()
+  --     -- -@type opencode.Opts
+  --     vim.g.opencode_opts = {
+  --       -- Your configuration, if any — see `lua/opencode/config.lua`, or "goto definition".
+  --     }
+
+  --     -- Required for `opts.events.reload`.
+  --     vim.o.autoread = true
+
+  --     -- Recommended/example keymaps.
+  --     vim.keymap.set({ "n", "x" }, "<C-a>", function() require("opencode").ask("@this: ", { submit = true }) end,
+  --       { desc = "Ask opencode" })
+  --     vim.keymap.set({ "n", "x" }, "<C-x>", function() require("opencode").select() end,
+  --       { desc = "Execute opencode action…" })
+  --     vim.keymap.set({ "n", "x" }, "ga", function() require("opencode").prompt("@buffer") end,
+  --       { desc = "Add to opencode" })
+  --     vim.keymap.set({ "n", "t" }, "<C-.>", function() require("opencode").toggle() end, { desc = "Toggle opencode" })
+  --     -- You may want these if you stick with the opinionated "<C-a>" and "<C-x>" above — otherwise consider "<leader>o".
+  --     vim.keymap.set('n', '+', '<C-a>', { desc = 'Increment', noremap = true })
+  --     vim.keymap.set('n', '-', '<C-x>', { desc = 'Decrement', noremap = true })
+  --   end,
+  -- },
+
+  -- ClaudeCode.nvim: Native Claude Code integration for Neovim
+  -- Description: Integrates Claude Code AI assistant directly into Neovim for in-editor coding help,
+  -- code explanations, refactoring, and more. Provides seamless interaction with Claude without
+  -- leaving your editor.
+  -- Custom Keybindings:
+  --   <leader>ac - Toggle Claude Code interface
+  --   <leader>af - Focus Claude Code window
+  --   <leader>ar - Resume previous Claude Code session
+  --   <leader>aC - Continue Claude Code conversation
+  --   <leader>am - Select Claude model (Sonnet, Opus, Haiku)
+  --   <leader>ab - Add current buffer to Claude's context
+  --   <leader>as - Send visual selection to Claude (visual mode) or add file from file explorer
+  --   <leader>aa - Accept suggested diff from Claude
+  --   <leader>ad - Deny/reject suggested diff from Claude
   {
-    "NickvanDyke/opencode.nvim",
-    dependencies = {
-      -- Recommended for `ask()` and `select()`.
-      -- Required for `snacks` provider.
-      -- -@module 'snacks' <- Loads `snacks.nvim` types for configuration intellisense.
-      { "folke/snacks.nvim", opts = { input = {}, picker = {}, terminal = {} } },
+    "coder/claudecode.nvim",
+    dependencies = { "folke/snacks.nvim" },
+    config = true,
+    keys = {
+      { "<leader>a",  nil,                              desc = "AI/Claude Code" },
+      { "<leader>ac", "<cmd>ClaudeCode<cr>",            desc = "Toggle Claude" },
+      { "<leader>af", "<cmd>ClaudeCodeFocus<cr>",       desc = "Focus Claude" },
+      { "<leader>ar", "<cmd>ClaudeCode --resume<cr>",   desc = "Resume Claude" },
+      { "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
+      { "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude model" },
+      { "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>",       desc = "Add current buffer" },
+      { "<leader>as", "<cmd>ClaudeCodeSend<cr>",        mode = "v",                  desc = "Send to Claude" },
+      {
+        "<leader>as",
+        "<cmd>ClaudeCodeTreeAdd<cr>",
+        desc = "Add file",
+        ft = { "NvimTree", "neo-tree", "oil", "minifiles", "netrw" },
+      },
+      -- Diff management
+      { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
+      { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>",   desc = "Deny diff" },
     },
-    config = function()
-      -- -@type opencode.Opts
-      vim.g.opencode_opts = {
-        -- Your configuration, if any — see `lua/opencode/config.lua`, or "goto definition".
-      }
-
-      -- Required for `opts.events.reload`.
-      vim.o.autoread = true
-
-      -- Recommended/example keymaps.
-      vim.keymap.set({ "n", "x" }, "<C-a>", function() require("opencode").ask("@this: ", { submit = true }) end,
-        { desc = "Ask opencode" })
-      vim.keymap.set({ "n", "x" }, "<C-x>", function() require("opencode").select() end,
-        { desc = "Execute opencode action…" })
-      vim.keymap.set({ "n", "x" }, "ga", function() require("opencode").prompt("@buffer") end,
-        { desc = "Add to opencode" })
-      vim.keymap.set({ "n", "t" }, "<C-.>", function() require("opencode").toggle() end, { desc = "Toggle opencode" })
-      -- You may want these if you stick with the opinionated "<C-a>" and "<C-x>" above — otherwise consider "<leader>o".
-      vim.keymap.set('n', '+', '<C-a>', { desc = 'Increment', noremap = true })
-      vim.keymap.set('n', '-', '<C-x>', { desc = 'Decrement', noremap = true })
-    end,
   },
 
   -- Colorschemes: Examples of themes to customize the appearance of your editor.
@@ -209,12 +261,20 @@ lvim.plugins = {
       require("nvim-ts-autotag").setup()
     end,
   },
+  -- Vim-Repeat: Enables repeating plugin commands with the dot operator
+  -- Description: Makes the '.' (dot) command work with plugin mappings, allowing you to repeat
+  -- complex plugin actions just like you repeat native Vim commands.
   { "tpope/vim-repeat" },
 
   -- Place a marker on files for later reference
   -- { "ThePrimeagen/harpoon" },
 
-  -- Hop plugin for fast navigation between words or characters in a document.
+  -- Hop: Fast cursor movement to any visible location
+  -- Description: Jump quickly to any character, word, or line on screen using minimal keystrokes.
+  -- EasyMotion-like plugin that shows labels for jump targets.
+  -- Custom Keybindings:
+  --   s - Jump to any location by typing 2 characters
+  --   S - Jump to the start of any visible word
   {
     'phaazon/hop.nvim',
     branch = 'v2',
@@ -225,9 +285,12 @@ lvim.plugins = {
     end
   },
 
-  -- Gitlinker plugin for creating sharable URLs to specific lines in code hosted on GitHub.
-  -- <leader>gy : To copy the current line github url
-  -- <leader>go : To open the github url in browser for current line
+  -- Gitlinker: Generate shareable GitHub URLs for code
+  -- Description: Creates GitHub/GitLab/Bitbucket URLs for the current file, line, or selection.
+  -- Useful for sharing code references with team members or in documentation.
+  -- Custom Keybindings:
+  --   <leader>gy - Copy GitHub URL for current line to clipboard
+  --   <leader>go - Open GitHub URL for current line in browser
   {
     "ruifm/gitlinker.nvim",
     config = function()
@@ -329,7 +392,10 @@ lvim.plugins = {
     end,
   },
 
-  -- Barbar.nvim - Enhanced tabline for buffer and tab management with visual indicators
+  -- Barbar: Enhanced tabline for buffer and tab management
+  -- Description: Displays open buffers in a visual tabline at the top of the editor with icons,
+  -- file status indicators, and animations. LunarVim provides default keybindings for buffer
+  -- navigation (typically <leader>b prefix or <Tab>/<S-Tab> to cycle through buffers).
   {
     "romgrk/barbar.nvim",
     event = "VimEnter",
@@ -381,7 +447,15 @@ lvim.plugins = {
   },
 }
 
-
+-- Telescope Configuration: Custom settings for the fuzzy finder
+-- Description: Telescope is LunarVim's fuzzy finder for files, text, buffers, and more.
+-- This configuration customizes the layout, search behavior, and keybindings.
+-- Custom Keybindings (insert mode):
+--   <C-j> - Move to next search result
+--   <C-k> - Move to previous search result
+--   <Tab> - Select and open file/result
+--   <C-y> - Copy file path to clipboard (custom addition)
+--   <C-d> - Delete buffer (in buffer picker only)
 lvim.builtin.telescope = {
   defaults = {
     layout_strategy = "horizontal",
