@@ -27,6 +27,10 @@ linters.setup({
   {
     command = "eslint_d",
     filetypes = { "javascript", "typescript", "typescriptreact" },
+    extra_args = {},
+    -- This will make null-ls prefer local node_modules/.bin version
+    prefer_local = "node_modules/.bin",
+    timeout = 10000, -- Set a timeout for the linter
   },
   {
     command = "jsonlint",

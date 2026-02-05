@@ -1,27 +1,17 @@
 lvim.plugins = {
-  -- Copilot.lua: AI-powered code completion from GitHub Copilot
-  -- Description: Provides intelligent code suggestions and completions powered by GitHub Copilot.
-  -- Runs headless (no UI) and integrates seamlessly with blink.cmp for completion display.
-  -- Suggestion and panel UI are disabled to work with external completion plugins.
+  -- Supermaven: AI-powered code completion (disabled inline, using blink.cmp)
   {
-    "zbirenbaum/copilot.lua",
-    commit = "5a08ab9",
-    cmd = "Copilot",
+    "supermaven-inc/supermaven-nvim",
     event = "InsertEnter",
-    config = function()
-      require("copilot").setup({
-        -- Disable copilot's UI
-        suggestion = { enabled = false },
-        panel = { enabled = false },
-        filetypes = {
-          ['*'] = true
-        },
-      })
-    end,
+    opts = {
+      disable_inline_completion = true, -- Disable ghost text
+      disable_keymaps = true,
+    }
   },
+
   -- Blink CMP: Fast and feature-rich autocompletion engine
   -- Description: Modern completion plugin with fuzzy matching, snippets, and LSP integration.
-  -- Works seamlessly with Copilot through the blink-cmp-copilot adapter.
+  -- Works seamlessly with Supermaven through the blink-cmp-supermaven adapter.
   -- Custom Keybindings:
   --   <C-j> - Select next completion item
   --   <C-k> - Select previous completion item
@@ -31,7 +21,7 @@ lvim.plugins = {
     version = "1.*",
     dependencies = {
       "rafamadriz/friendly-snippets",
-      "giuxtaposition/blink-cmp-copilot", -- The adapter plugin
+      "Huijiro/blink-cmp-supermaven", -- Supermaven integration for blink.cmp
     },
     opts = {
       keymap = {
@@ -44,105 +34,18 @@ lvim.plugins = {
       fuzzy = { implementation = "prefer_rust_with_warning" },
       sources = {
         providers = {
-          copilot = {
-            module = "blink-cmp-copilot",
+          supermaven = {
+            name = "supermaven",
+            module = "blink-cmp-supermaven",
             score_offset = 100,
+            async = true,
           },
         },
-        default = { 'copilot', 'lsp', 'snippets', 'buffer', 'path' },
+        default = { 'lsp', 'path', 'supermaven', 'snippets', 'buffer' },
       },
     },
   },
 
-  -- Official GitHub Copilot plugin for AI code suggestions in real-time. This is used by Avant.nvim.
-  -- {
-  --   "github/copilot.vim",
-  --   -- event = "InsertEnter",
-  --   config = function()
-  --     -- vim.g.copilot_no_tab_map = true
-  --     vim.g.copilot_filetypes = { ["*"] = false } -- Disable Copilot for all file types by default so that inline suggestions don't interfere with Blink CMP
-  --     -- vim.api.nvim_set_keymap("i", "<C-j>", 'copilot#Accept("<CR>")', { silent = true, expr = true, script = true })
-  --     -- vim.api.nvim_set_keymap("i", "<C-k>", 'copilot#Dismiss()', { silent = true, expr = true, script = true })
-  --   end,
-  -- },
-
-  -- AI-powered code assistant that provides intelligent code completions and explanations.
-  -- {
-  --   "yetone/avante.nvim",
-  --   build = "make",
-  --   event = "VeryLazy",
-  --   version = false,
-  --   opts = {
-  --     provider = "copilot",
-  --     providers = {
-  --       copilot = {
-  --         model = 'claude-sonnet-4',
-  --         timeout = 30000,
-  --         -- model = 'gpt-4.1',
-  --         -- max_context_tokens = 8000
-  --       },
-  --     },
-  --     web_search_engine = {
-  --       provider = "google", -- tavily, serpapi, google, kagi, brave, or searxng
-  --       proxy = nil,         -- proxy support, e.g., http://127.0.0.1:7890
-  --     },
-  --     windows = {
-  --       sidebar = {
-  --         width = 50,
-  --         position = "right",
-  --         winblend = 80, -- Make sidebar transparent (0-100, higher = more transparent)
-  --       },
-  --       input = {
-  --         prefix = "> ",
-  --         winblend = 20, -- Make input window transparent
-  --       },
-  --       edit = {
-  --         border = "rounded",
-  --         winblend = 20, -- Make edit window transparent
-  --       },
-  --       ask = {
-  --         floating = true,
-  --         border = "rounded",
-  --         winblend = 70, -- Make ask window transparent
-  --       },
-  --     },
-  --     behaviour = {
-  --       auto_suggestions = false,
-  --       auto_set_highlight_group = true,
-  --       auto_set_keymaps = true,
-  --       auto_apply_diff_after_generation = false,
-  --       support_paste_from_clipboard = false,
-  --     },
-  --     mappings = {
-  --       ask = "<leader>aa",
-  --       edit = "<leader>ae",
-  --       refresh = "<leader>ar",
-  --       diff = {
-  --         ours = "co",
-  --         theirs = "ct",
-  --         both = "cb",
-  --         next = "]x",
-  --         prev = "[x",
-  --       },
-  --     },
-  --   },
-  --   config = function(_, opts)
-  --     require("avante").setup(opts)
-  --   end,
-  --   dependencies = {
-  --     "nvim-lua/plenary.nvim",
-  --     "MunifTanjim/nui.nvim",
-  --     "nvim-tree/nvim-web-devicons",
-  --     "github/copilot.vim",
-  --     {
-  --       'MeanderingProgrammer/render-markdown.nvim',
-  --       opts = {
-  --         file_types = { "markdown", "Avante" },
-  --       },
-  --       ft = { "markdown", "Avante" },
-  --     },
-  --   },
-  -- },
   -- Render Markdown: Live markdown rendering in Neovim buffers
   -- Description: Displays markdown files with proper formatting, headers, code blocks, and inline
   -- elements rendered visually in normal mode. Makes reading markdown documentation easier.
@@ -166,22 +69,18 @@ lvim.plugins = {
   --     vim.g.opencode_opts = {
   --       -- Your configuration, if any — see `lua/opencode/config.lua`, or "goto definition".
   --     }
-
   --     -- Required for `opts.events.reload`.
   --     vim.o.autoread = true
-
-  --     -- Recommended/example keymaps.
-  --     vim.keymap.set({ "n", "x" }, "<C-a>", function() require("opencode").ask("@this: ", { submit = true }) end,
-  --       { desc = "Ask opencode" })
-  --     vim.keymap.set({ "n", "x" }, "<C-x>", function() require("opencode").select() end,
-  --       { desc = "Execute opencode action…" })
-  --     vim.keymap.set({ "n", "x" }, "ga", function() require("opencode").prompt("@buffer") end,
-  --       { desc = "Add to opencode" })
-  --     vim.keymap.set({ "n", "t" }, "<C-.>", function() require("opencode").toggle() end, { desc = "Toggle opencode" })
-  --     -- You may want these if you stick with the opinionated "<C-a>" and "<C-x>" above — otherwise consider "<leader>o".
-  --     vim.keymap.set('n', '+', '<C-a>', { desc = 'Increment', noremap = true })
-  --     vim.keymap.set('n', '-', '<C-x>', { desc = 'Decrement', noremap = true })
   --   end,
+  --   keys = {
+  --     { "<leader>a",  nil,                                                                  desc = "OpenCode" },
+  --     { "<leader>ac", function() require("opencode").toggle() end,                          desc = "Toggle OpenCode" },
+  --     { "<leader>ac", function() require("opencode").toggle() end,                          mode = "t",              desc = "Toggle OpenCode" },
+  --     { "<leader>aa", function() require("opencode").ask("@this: ", { submit = true }) end, mode = { "n", "x" },     desc = "Ask OpenCode" },
+  --     { "<leader>ax", function() require("opencode").select() end,                          mode = { "n", "x" },     desc = "Execute OpenCode action" },
+  --     { "<leader>ab", function() require("opencode").prompt("@buffer") end,                 mode = { "n", "x" },     desc = "Add buffer to OpenCode" },
+  --     { "<leader>as", function() require("opencode").ask() end,                             mode = "v",              desc = "Send to OpenCode" },
+  --   },
   -- },
 
   -- ClaudeCode.nvim: Native Claude Code integration for Neovim
@@ -201,7 +100,28 @@ lvim.plugins = {
   {
     "coder/claudecode.nvim",
     dependencies = { "folke/snacks.nvim" },
-    config = true,
+    config = function(_, opts)
+      require("claudecode").setup(opts)
+      -- Hide line numbers in terminal windows
+      vim.api.nvim_create_autocmd("TermOpen", {
+        pattern = "*",
+        callback = function()
+          vim.opt_local.number = false
+          vim.opt_local.relativenumber = false
+        end,
+      })
+    end,
+    opts = {
+      diff_opts = {
+        auto_close_on_accept = true, -- Close diff windows after accepting
+        vertical_split = true,       -- Use vertical splits for diffs
+        open_in_current_tab = false, -- Don't create new tabs
+        keep_terminal_focus = true,  -- Keep focus on Claude terminal
+      },
+      terminal = {
+        provider = "native"
+      }
+    },
     keys = {
       { "<leader>a",  nil,                              desc = "AI/Claude Code" },
       { "<leader>ac", "<cmd>ClaudeCode<cr>",            desc = "Toggle Claude" },
@@ -220,6 +140,35 @@ lvim.plugins = {
       -- Diff management
       { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
       { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>",   desc = "Deny diff" },
+    },
+  },
+
+  -- Trouble.nvim: Beautiful diagnostics, references, and quickfix list
+  -- Description: A pretty list for showing diagnostics, references, telescope results,
+  -- quickfix and location lists. Greatly improves the display of LSP diagnostics including
+  -- TypeScript errors with better formatting, icons, and navigation.
+  -- Custom Keybindings:
+  --   <leader>xx - Toggle diagnostics list
+  --   <leader>xw - Show workspace diagnostics
+  --   <leader>xd - Show document diagnostics
+  --   <leader>xq - Show quickfix list
+  --   <leader>xl - Show location list
+  {
+    "folke/trouble.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    cmd = "Trouble",
+    keys = {
+      { "<leader>x",  nil,                                                desc = "Trouble/Diagnostics" },
+      { "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>",              desc = "Toggle diagnostics" },
+      { "<leader>xw", "<cmd>Trouble diagnostics toggle<cr>",              desc = "Workspace diagnostics" },
+      { "<leader>xd", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Document diagnostics" },
+      { "<leader>xq", "<cmd>Trouble quickfix toggle<cr>",                 desc = "Quickfix list" },
+      { "<leader>xl", "<cmd>Trouble loclist toggle<cr>",                  desc = "Location list" },
+    },
+    opts = {
+      auto_close = false,
+      auto_open = false,
+      focus = true,
     },
   },
 
@@ -261,6 +210,7 @@ lvim.plugins = {
       require("nvim-ts-autotag").setup()
     end,
   },
+
   -- Vim-Repeat: Enables repeating plugin commands with the dot operator
   -- Description: Makes the '.' (dot) command work with plugin mappings, allowing you to repeat
   -- complex plugin actions just like you repeat native Vim commands.
@@ -468,6 +418,10 @@ lvim.builtin.telescope = {
       },
     },
     path_display = { "truncate" },
+    file_ignore_patterns = {
+      "node_modules/.*",
+      ".git/.*",
+    },
     vimgrep_arguments = {
       "rg",
       "--color=never",
@@ -476,7 +430,8 @@ lvim.builtin.telescope = {
       "--line-number",
       "--column",
       "--smart-case",
-      "--hidden", -- include hidden files like `.github`
+      "--hidden",                -- include hidden files like `.github`
+      "--glob=!node_modules/**", -- exclude node_modules from searches
     },
     mappings = {
       -- use ctrl+j/k to navigate the telescope file search results

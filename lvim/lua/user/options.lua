@@ -66,5 +66,68 @@ lvim.builtin.terminal.float_opts = {
 }
 -- lvim.builtin.project.patterns = { ".git", "package-lock.json", "yarn.lock", "package.json" }
 
-vim.fn.setenv('GOOGLE_SEARCH_API_KEY', '')
-vim.fn.setenv('GOOGLE_SEARCH_ENGINE_ID', '')
+lvim.builtin.nvimtree.setup.view.width = 35
+lvim.builtin.nvimtree.setup.renderer.icons.show.git = true
+lvim.builtin.nvimtree.setup.renderer.icons.glyphs = require("user.kind").nvim_tree_icons
+
+-- Configure filters to show node_modules in tree but not hidden files by default
+lvim.builtin.nvimtree.setup.filters = {
+  dotfiles = false, -- Show hidden files (you can set to true if you want to hide them)
+  custom = {},      -- No custom filters - this ensures node_modules is visible
+  exclude = {},     -- No exclusions
+}
+
+-- Show files ignored by git (like node_modules if it's in .gitignore)
+lvim.builtin.nvimtree.setup.git = {
+  enable = true,
+  ignore = false, -- IMPORTANT: Set to false to show node_modules even if in .gitignore
+}
+
+-- Custom key mappings for nvim-tree
+lvim.builtin.nvimtree.setup.on_attach = function(bufnr)
+  local api = require("nvim-tree.api")
+
+  local function opts(desc)
+    return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+  end
+
+  -- Telescope integration functions
+  local function telescope_find_files()
+    local node = require("nvim-tree.lib").get_node_at_cursor()
+    local abspath = node.link_to or node.absolute_path
+    local is_folder = node.open ~= nil
+    local basedir = is_folder and abspath or vim.fn.fnamemodify(abspath, ":h")
+    require("telescope.builtin").find_files({ cwd = basedir })
+  end
+
+  local function telescope_live_grep()
+    local node = require("nvim-tree.lib").get_node_at_cursor()
+    local abspath = node.link_to or node.absolute_path
+    local is_folder = node.open ~= nil
+    local basedir = is_folder and abspath or vim.fn.fnamemodify(abspath, ":h")
+    require("telescope.builtin").live_grep({ cwd = basedir })
+  end
+
+  -- Use default nvim-tree mappings first
+  api.config.mappings.default_on_attach(bufnr)
+
+  -- Add LunarVim's custom useful keymaps
+  vim.keymap.set('n', 'l', api.node.open.edit, opts('Open'))
+  vim.keymap.set('n', 'o', api.node.open.edit, opts('Open'))
+  vim.keymap.set('n', '<CR>', api.node.open.edit, opts('Open'))
+  vim.keymap.set('n', 'v', api.node.open.vertical, opts('Open: Vertical Split'))
+  vim.keymap.set('n', 'h', api.node.navigate.parent_close, opts('Close Directory'))
+  vim.keymap.set('n', 'C', api.tree.change_root_to_node, opts('CD'))
+  vim.keymap.set('n', 'F', telescope_live_grep, opts('Telescope Live Grep'))
+  vim.keymap.set('n', 'gtf', telescope_find_files, opts('Telescope Find File'))
+
+  -- Custom mapping: 'y' to copy absolute path
+  vim.keymap.set('n', 'y', function()
+    local node = api.tree.get_node_under_cursor()
+    if node then
+      local absolute_path = node.absolute_path
+      vim.fn.setreg('+', absolute_path)
+      vim.notify('Copied: ' .. absolute_path, vim.log.levels.INFO)
+    end
+  end, opts('Copy absolute path'))
+end
